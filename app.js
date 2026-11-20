@@ -1,13 +1,88 @@
-const reportUrl = 'https://www.warcraftlogs.com/reports/tKGJ2NCQvfxRwMd3?fight=22&type=casts&source=17&view=events';
+const DEFAULT_REPORT = 'https://www.warcraftlogs.com/reports/tKGJ2NCQvfxRwMd3?fight=22&type=casts&source=17&view=events';
 const $ = id => document.getElementById(id);
-let events = [];
-const parseTime = value => { const m = String(value).trim().match(/^(?:(\d+):)?(\d{1,2})(?:\.(\d+))?$/); if (!m) return NaN; return (Number(m[1]||0)*60)+Number(m[2])+Number(`0.${m[3]||0}`); };
-const fmt = n => `${Math.floor(n/60)}:${String(Math.floor(n%60)).padStart(2,'0')}.${String(Math.round((n%1)*1000)).padStart(3,'0')}`;
-function normalizeAbility(value){ return value.trim().replace(/\s+\d+(?:\.\d+)?\s+sec$/i,''); }
-function setEvents(input){ events=input.filter(e=>e.ability && e.ability!=='Shadowy Apparition' && Number.isFinite(parseTime(e.time))).sort((a,b)=>parseTime(a.time)-parseTime(b.time)); render(); }
-function render(){ const min=Number($('threshold').value)||3; const gaps=[]; for(let i=1;i<events.length;i++){const seconds=parseTime(events[i].time)-parseTime(events[i-1].time);if(seconds>=min)gaps.push({seconds,from:events[i-1],to:events[i]});} gaps.sort((a,b)=>b.seconds-a.seconds); $('eventCount').textContent=events.length; $('gapCount').textContent=gaps.length; $('gapRows').innerHTML=gaps.map(g=>`<tr data-time="${encodeURIComponent(g.to.time)}"><td class="duration">${g.seconds.toFixed(3)}s</td><td class="time">${g.from.time}</td><td class="ability">${escapeHtml(g.from.ability)}</td><td class="time">${g.to.time}</td><td class="ability">${escapeHtml(g.to.ability)}</td></tr>`).join(''); $('emptyState').hidden=!!gaps.length; document.querySelectorAll('#gapRows tr').forEach(row=>row.addEventListener('click',()=>{const t=decodeURIComponent(row.dataset.time);const seconds=parseTime(t);window.open(`${reportUrl}&start=${Math.max(0,Math.floor(seconds*1000)-5000)}`,'_blank','noopener');})); }
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function parseCsv(text){const rows=[];let row=[],cell='',quoted=false;for(let i=0;i<text.length;i++){const c=text[i];if(quoted){if(c==='"'&&text[i+1]==='"'){cell+='"';i++;}else if(c==='"')quoted=false;else cell+=c;}else if(c==='"')quoted=true;else if(c===','){row.push(cell);cell='';}else if(c==='\n'){row.push(cell.replace(/\r$/,''));rows.push(row);row=[];cell='';}else cell+=c;}if(cell||row.length){row.push(cell.replace(/\r$/,''));rows.push(row);}if(!rows.length)return[];const headers=rows.shift().map(h=>h.trim());return rows.filter(r=>r.length>1).map(r=>Object.fromEntries(headers.map((h,i)=>[h,r[i]||'']))).filter(r=>{const field=r['Source → Target']||r['Source -> Target']||'';return field.split(/→|->/)[0].trim()==='Irohaa';}).map(r=>({time:r.Time||'',type:r.Type||'',ability:normalizeAbility(r.Ability||''),sourceTarget:r['Source → Target']||r['Source -> Target']||''}));}
-$('threshold').addEventListener('input',render);
-$('csvFile').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{setEvents(parseCsv(await file.text()));$('fightName').textContent=file.name.replace(/\s+-\s+Report.*$/,'').replace(/^Events\s*-\s*/,'');}catch(err){alert(`Could not read this CSV: ${err.message}`)}});
-try {const response=await fetch('./data/events.json');setEvents(await response.json());}catch{ $('emptyState').hidden=false; $('emptyState').textContent='Could not load the sample report. Open this site through a local web server.';}
+let currentReport;
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+}
+function formatTime(timestamp, fightStart) {
+  const seconds = Math.max(0, (timestamp - fightStart) / 1000);
+  const minutes = Math.floor(seconds / 60);
+  return `${String(minutes).padStart(2,'0')}:${(seconds - minutes * 60).toFixed(3).padStart(6,'0')}`;
+}
+function duration(value) { return `${(value / 1000).toFixed(3)}s`; }
+
+function showStatus(message, isError = false) {
+  const status = $('status');
+  status.hidden = !message;
+  status.classList.toggle('error', isError);
+  status.textContent = message;
+}
+
+function render(report) {
+  currentReport = report;
+  $('reportContent').hidden = false;
+  $('fightName').textContent = report.encounter || 'Encounter';
+  const mode = report.difficulty === 5 ? 'Mythic' : `Difficulty ${report.difficulty ?? '—'}`;
+  $('fightDetails').textContent = `${mode} · ${report.kill ? 'Kill' : 'Encounter'} · ${(report.fightDuration / 60000).toFixed(2)} min · ${report.playerName}`;
+  $('eventCount').textContent = Number(report.eventCount).toLocaleString();
+  $('actionCount').textContent = Number(report.gcdActionCount).toLocaleString();
+  $('gapCount').textContent = report.gapCount;
+  $('gcdRange').textContent = `${(report.gcdRange[0] / 1000).toFixed(2)}–${(report.gcdRange[1] / 1000).toFixed(2)}s`;
+  $('hasteRange').textContent = `${(report.hasteRange[0] * 100).toFixed(1)}–${(report.hasteRange[1] * 100).toFixed(1)}%`;
+  const link = new URL(`https://www.warcraftlogs.com/reports/${report.reportCode}`);
+  link.searchParams.set('fight', report.fightId);
+  link.searchParams.set('type', 'casts');
+  link.searchParams.set('source', report.playerId);
+  link.searchParams.set('view', 'events');
+  $('openReport').href = link.toString();
+  renderRows();
+}
+
+function renderRows() {
+  if (!currentReport) return;
+  const minGap = Math.max(0, Number($('minimumGap').value) || 0) * 1000;
+  const rows = currentReport.gaps.filter(gap => gap.idle >= minGap);
+  $('gapRows').innerHTML = rows.map(gap => `
+    <tr>
+      <td class="gap-value">${duration(gap.idle)}</td>
+      <td><span class="time">${formatTime(gap.fromTime, currentReport.fightStart)}</span><br><span class="ability">${escapeHtml(gap.fromAbility)}</span></td>
+      <td class="time">${duration(gap.gcd)}</td>
+      <td class="time">${duration(gap.interval)}</td>
+      <td><span class="time">${formatTime(gap.toTime, currentReport.fightStart)}</span><br><span class="ability">${escapeHtml(gap.toAbility)}</span></td>
+    </tr>`).join('');
+  $('emptyState').hidden = rows.length > 0;
+}
+
+async function analyzeUrl(url, playerName) {
+  $('analyzeButton').disabled = true;
+  $('reportContent').hidden = true;
+  showStatus('Loading fight events, combatant stats, and haste changes from the report…');
+  try {
+    const query = new URLSearchParams({url, player: playerName || 'Irohaa'});
+    const response = await fetch(`/api/analyze?${query}`);
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Report could not be analyzed.');
+    showStatus('');
+    render(data);
+  } catch (error) {
+    showStatus(`${error.message} Start this project with python3 server.py.`, true);
+  } finally {
+    $('analyzeButton').disabled = false;
+  }
+}
+
+$('reportUrl').value = DEFAULT_REPORT;
+$('reportForm').addEventListener('submit', event => {
+  event.preventDefault();
+  analyzeUrl($('reportUrl').value, $('playerName').value.trim());
+});
+$('minimumGap').addEventListener('input', renderRows);
+
+try {
+  const response = await fetch('./data/gcd-report.json');
+  if (!response.ok) throw new Error('Sample report not found');
+  render(await response.json());
+} catch (error) {
+  showStatus('The sample report could not be loaded. Start this project with python3 server.py.', true);
+}

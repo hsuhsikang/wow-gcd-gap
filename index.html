@@ -9,28 +9,49 @@
 </head>
 <body>
   <main class="shell">
-    <header class="topbar"><a class="brand" href="#">CAST<span>GAP</span></a><span class="tag">SHADOW PRIEST REVIEW</span></header>
+    <header class="topbar"><a class="brand" href="#">CAST<span>GAP</span></a><span class="tag">SHADOW PRIEST / UPTIME</span></header>
     <section class="hero">
-      <div class="eyebrow">PERFORMANCE REVIEW / UPTIME</div>
+      <div class="eyebrow">DYNAMIC GCD REVIEW</div>
       <h1>Find the pauses<br><em>between your casts.</em></h1>
-      <p class="lede">A first-pass review of player-initiated events. Tune the threshold, inspect the largest intervals, and match them to your raid video.</p>
+      <p class="lede">Compare each action with the GCD active at that moment. Haste buffs change the GCD; channels keep the timeline covered until they end.</p>
     </section>
+
     <section class="report-card">
-      <div class="report-head">
-        <div><div class="eyebrow">ENCOUNTER</div><h2 id="fightName">The Lost Explorers</h2><div class="muted">Mythic · Kill · 5:30</div></div>
-        <a class="report-link" href="https://www.warcraftlogs.com/reports/tKGJ2NCQvfxRwMd3?fight=22&amp;type=casts&amp;source=17&amp;view=events" target="_blank" rel="noreferrer">OPEN WARCRAFT LOGS ↗</a>
+      <form id="reportForm" class="report-form">
+        <label for="reportUrl"><span class="eyebrow">WARCRAFT LOGS REPORT URL</span><input id="reportUrl" type="url" spellcheck="false" placeholder="Paste a report URL with fight and source selected" required></label>
+        <label class="player-field" for="playerName"><span class="eyebrow">PLAYER</span><input id="playerName" value="Irohaa" autocomplete="off"></label>
+        <button class="analyze-button" id="analyzeButton" type="submit">ANALYZE REPORT</button>
+      </form>
+
+      <div id="status" class="status" role="status" hidden></div>
+
+      <div id="reportContent" hidden>
+        <div class="report-head">
+          <div><div class="eyebrow">ENCOUNTER</div><h2 id="fightName">The Lost Explorers</h2><div class="muted" id="fightDetails">Mythic · Kill</div></div>
+          <a class="report-link" id="openReport" target="_blank" rel="noreferrer">OPEN WARCRAFT LOGS ↗</a>
+        </div>
+        <div class="stats">
+          <div><span class="stat-label">EVENTS LOADED</span><strong id="eventCount">—</strong></div>
+          <div><span class="stat-label">ON-GCD ACTIONS</span><strong id="actionCount">—</strong></div>
+          <div><span class="stat-label">GAPS EXCEEDING GCD</span><strong id="gapCount">—</strong></div>
+          <div><span class="stat-label">DYNAMIC GCD RANGE</span><strong id="gcdRange">—</strong></div>
+          <div><span class="stat-label">HASTE RANGE</span><strong id="hasteRange">—</strong></div>
+        </div>
+        <div class="toolbar">
+          <div><h3>Uncovered intervals</h3><p>Sorted by uncovered time · intervals include the prior GCD and any channel duration</p></div>
+          <label class="minimum"><span>MIN. UNCOVERED</span><input id="minimumGap" type="number" min="0" max="60" step="0.01" value="0"><b> sec</b></label>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>UNCOVERED</th><th>FROM</th><th>PREV. GCD</th><th>RAW INTERVAL</th><th>TO</th></tr></thead>
+            <tbody id="gapRows"></tbody>
+          </table>
+          <div class="empty" id="emptyState" hidden>No gaps meet this minimum.</div>
+        </div>
+        <div class="footnote"><span class="dot"></span><p><strong>Method:</strong> GCD duration is calculated at each on-GCD cast using the haste state at that timestamp. Casts and channels cover their active duration. This report follows WoW Analyzer’s Haste, GCD, and channel-normalization logic. <b>Shadowy Apparition is excluded</b>; Void Volley is included as an active GCD ability per your rule.</p></div>
       </div>
-      <div class="stats">
-        <div><span class="stat-label">PLAYER</span><strong>Irohaa</strong></div>
-        <div><span class="stat-label">EVENTS INCLUDED</span><strong id="eventCount">—</strong></div>
-        <div><span class="stat-label">INTERVALS ABOVE THRESHOLD</span><strong id="gapCount">—</strong></div>
-        <label class="threshold"><span class="stat-label">MINIMUM INTERVAL</span><span><input id="threshold" type="number" min="0.1" max="60" step="0.1" value="3.0"><b> sec</b></span></label>
-      </div>
-      <div class="toolbar"><div><h3>Candidate gaps</h3><p>Longest intervals first · click a row to open that timestamp in the log</p></div><label class="upload">IMPORT CSV<input id="csvFile" type="file" accept=".csv,text/csv"></label></div>
-      <div class="table-wrap"><table><thead><tr><th>INTERVAL</th><th>FROM</th><th>ABILITY</th><th>TO</th><th>ABILITY</th></tr></thead><tbody id="gapRows"></tbody></table><div class="empty" id="emptyState" hidden>No intervals meet this threshold. Try lowering it.</div></div>
-      <div class="footnote"><span class="dot"></span><p><strong>How to read this:</strong> These are raw time differences between consecutive included events. Cast and channel duration has not been subtracted, so treat them as candidate gaps, not confirmed idle time. This first pass excludes <b>Shadowy Apparition</b> only; all other exported events are retained.</p></div>
     </section>
-    <footer>CAST GAP REVIEW <span>·</span> EARLY ANALYZER PROTOTYPE</footer>
+    <footer>CAST GAP REVIEW <span>·</span> GCD-AWARE PROTOTYPE</footer>
   </main>
   <script src="app.js" type="module"></script>
 </body>
