@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10151a">
+  <title>Cast Gap Review — Irohaa</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar"><a class="brand" href="#">CAST<span>GAP</span></a><span class="tag">SHADOW PRIEST REVIEW</span></header>
+    <section class="hero">
+      <div class="eyebrow">PERFORMANCE REVIEW / UPTIME</div>
+      <h1>Find the pauses<br><em>between your casts.</em></h1>
+      <p class="lede">A first-pass review of player-initiated events. Tune the threshold, inspect the largest intervals, and match them to your raid video.</p>
+    </section>
+    <section class="report-card">
+      <div class="report-head">
+        <div><div class="eyebrow">ENCOUNTER</div><h2 id="fightName">The Lost Explorers</h2><div class="muted">Mythic · Kill · 5:30</div></div>
+        <a class="report-link" href="https://www.warcraftlogs.com/reports/tKGJ2NCQvfxRwMd3?fight=22&amp;type=casts&amp;source=17&amp;view=events" target="_blank" rel="noreferrer">OPEN WARCRAFT LOGS ↗</a>
+      </div>
+      <div class="stats">
+        <div><span class="stat-label">PLAYER</span><strong>Irohaa</strong></div>
+        <div><span class="stat-label">EVENTS INCLUDED</span><strong id="eventCount">—</strong></div>
+        <div><span class="stat-label">INTERVALS ABOVE THRESHOLD</span><strong id="gapCount">—</strong></div>
+        <label class="threshold"><span class="stat-label">MINIMUM INTERVAL</span><span><input id="threshold" type="number" min="0.1" max="60" step="0.1" value="3.0"><b> sec</b></span></label>
+      </div>
+      <div class="toolbar"><div><h3>Candidate gaps</h3><p>Longest intervals first · click a row to open that timestamp in the log</p></div><label class="upload">IMPORT CSV<input id="csvFile" type="file" accept=".csv,text/csv"></label></div>
+      <div class="table-wrap"><table><thead><tr><th>INTERVAL</th><th>FROM</th><th>ABILITY</th><th>TO</th><th>ABILITY</th></tr></thead><tbody id="gapRows"></tbody></table><div class="empty" id="emptyState" hidden>No intervals meet this threshold. Try lowering it.</div></div>
+      <div class="footnote"><span class="dot"></span><p><strong>How to read this:</strong> These are raw time differences between consecutive included events. Cast and channel duration has not been subtracted, so treat them as candidate gaps, not confirmed idle time. This first pass excludes <b>Shadowy Apparition</b> only; all other exported events are retained.</p></div>
+    </section>
+    <footer>CAST GAP REVIEW <span>·</span> EARLY ANALYZER PROTOTYPE</footer>
+  </main>
+  <script src="app.js" type="module"></script>
+</body>
+</html>
