@@ -43,9 +43,14 @@ function renderRows() {
   if (!currentReport) return;
   const minGap = Math.max(0, Number($('minimumGap').value) || 0) * 1000;
   const rows = currentReport.gaps.filter(gap => gap.idle >= minGap);
+  const totalIdle = rows.reduce((sum, gap) => sum + gap.idle, 0);
+  const totalGcds = rows.reduce((sum, gap) => sum + gap.idle / gap.gcd, 0);
+  $('totalSeconds').textContent = duration(totalIdle);
+  $('totalGcds').textContent = totalGcds.toFixed(2);
   $('gapRows').innerHTML = rows.map(gap => `
     <tr>
-      <td class="gap-value">${duration(gap.idle)}</td>
+      <td class="gap-value">${(gap.idle / gap.gcd).toFixed(2)}</td>
+      <td class="time">${duration(gap.idle)}</td>
       <td><span class="time">${formatTime(gap.fromTime, currentReport.fightStart)}</span><br><span class="ability">${escapeHtml(gap.fromAbility)}</span></td>
       <td class="time">${duration(gap.gcd)}</td>
       <td class="time">${duration(gap.interval)}</td>

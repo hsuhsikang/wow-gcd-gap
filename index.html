@@ -38,17 +38,22 @@
           <div><span class="stat-label">HASTE RANGE</span><strong id="hasteRange">—</strong></div>
         </div>
         <div class="toolbar">
-          <div><h3>Uncovered intervals</h3><p>Sorted by uncovered time · intervals include the prior GCD and any channel duration</p></div>
+          <div><h3>Uncovered intervals</h3><p>Sorted by uncovered time · GCD equivalents use the previous action’s GCD</p></div>
           <label class="minimum"><span>MIN. UNCOVERED</span><input id="minimumGap" type="number" min="0" max="60" step="0.01" value="0"><b> sec</b></label>
         </div>
         <div class="table-wrap">
+          <div class="totals-label eyebrow">TOTALS FOR SHOWN ROWS</div>
+          <div class="totals">
+            <div><span class="stat-label">TOTAL UNCOVERED TIME</span><strong id="totalSeconds">—</strong></div>
+            <div><span class="stat-label">TOTAL GCD EQUIVALENTS</span><strong id="totalGcds">—</strong></div>
+          </div>
           <table>
-            <thead><tr><th>UNCOVERED</th><th>FROM</th><th>PREV. GCD</th><th>RAW INTERVAL</th><th>TO</th></tr></thead>
+            <thead><tr><th>UNCOVERED GCDS</th><th>UNCOVERED TIME</th><th>FROM</th><th>PREV. GCD</th><th>RAW INTERVAL</th><th>TO</th></tr></thead>
             <tbody id="gapRows"></tbody>
           </table>
           <div class="empty" id="emptyState" hidden>No gaps meet this minimum.</div>
         </div>
-        <div class="footnote"><span class="dot"></span><p><strong>Method:</strong> GCD duration is calculated at each on-GCD cast using the haste state at that timestamp. Casts and channels cover their active duration. This report follows WoW Analyzer’s Haste, GCD, and channel-normalization logic. <b>Shadowy Apparition is excluded</b>; Void Volley is included as an active GCD ability per your rule.</p></div>
+        <div class="footnote"><span class="dot"></span><p><strong>Method:</strong> Each row’s GCD equivalent is uncovered seconds divided by the previous GCD duration. Totals sum the rows currently shown. GCD duration is calculated at each on-GCD cast using the haste state at that timestamp; casts and channels cover their active duration. <b>Shadowy Apparition is excluded</b>; Void Volley is included as an active GCD ability per your rule.</p></div>
       </div>
     </section>
     <footer>CAST GAP REVIEW <span>·</span> GCD-AWARE PROTOTYPE</footer>
