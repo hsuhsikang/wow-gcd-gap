@@ -45,8 +45,12 @@ function renderRows() {
   const rows = currentReport.gaps.filter(gap => gap.idle >= minGap);
   const totalIdle = rows.reduce((sum, gap) => sum + gap.idle, 0);
   const totalGcds = rows.reduce((sum, gap) => sum + gap.idle / gap.gcd, 0);
-  $('totalSeconds').textContent = duration(totalIdle);
   $('totalGcds').textContent = totalGcds.toFixed(2);
+  const totalGcdOpportunities = Number(currentReport.gcdActionCount) + totalGcds;
+  $('gcdLossPercent').textContent = totalGcdOpportunities > 0
+    ? `${(totalGcds / totalGcdOpportunities * 100).toFixed(1)}%`
+    : '—';
+  $('totalSeconds').textContent = duration(totalIdle);
   $('gapRows').innerHTML = rows.map(gap => `
     <tr>
       <td class="gap-value">${(gap.idle / gap.gcd).toFixed(2)}</td>

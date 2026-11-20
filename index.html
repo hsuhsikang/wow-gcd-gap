@@ -44,8 +44,9 @@
         <div class="table-wrap">
           <div class="totals-label eyebrow">TOTALS FOR SHOWN ROWS</div>
           <div class="totals">
-            <div><span class="stat-label">TOTAL UNCOVERED TIME</span><strong id="totalSeconds">—</strong></div>
             <div><span class="stat-label">TOTAL GCD EQUIVALENTS</span><strong id="totalGcds">—</strong></div>
+            <div><span class="stat-label">GCD LOSS</span><strong id="gcdLossPercent">—</strong></div>
+            <div><span class="stat-label">TOTAL UNCOVERED TIME</span><strong id="totalSeconds">—</strong></div>
           </div>
           <table>
             <thead><tr><th>UNCOVERED GCDS</th><th>UNCOVERED TIME</th><th>FROM</th><th>PREV. GCD</th><th>RAW INTERVAL</th><th>TO</th></tr></thead>
@@ -53,7 +54,7 @@
           </table>
           <div class="empty" id="emptyState" hidden>No gaps meet this minimum.</div>
         </div>
-        <div class="footnote"><span class="dot"></span><p><strong>Method:</strong> Each row’s GCD equivalent is uncovered seconds divided by the previous GCD duration. Totals sum the rows currently shown. GCD duration is calculated at each on-GCD cast using the haste state at that timestamp; casts and channels cover their active duration. <b>Shadowy Apparition is excluded</b>; Void Volley is included as an active GCD ability per your rule.</p></div>
+        <div class="footnote"><span class="dot"></span><p><strong>Method:</strong> Each row’s GCD equivalent is uncovered seconds divided by the previous GCD duration. GCD loss is uncovered GCD equivalents divided by performed on-GCD actions plus uncovered GCD equivalents. Totals sum the rows currently shown. GCD duration is calculated at each on-GCD cast using the haste state at that timestamp; casts and channels cover their active duration. <b>Shadowy Apparition is excluded</b>; Void Volley is included as an active GCD ability per your rule.</p></div>
       </div>
     </section>
     <footer>CAST GAP REVIEW <span>·</span> GCD-AWARE PROTOTYPE</footer>
