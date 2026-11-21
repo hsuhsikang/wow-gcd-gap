@@ -58,9 +58,9 @@ function renderRows() {
       <td class="gap-value">${(gap.idle / gap.gcd).toFixed(2)}</td>
       <td class="time">${duration(gap.idle)}</td>
       <td><span class="time">${formatTime(gap.fromTime, currentReport.fightStart)}</span><br><span class="ability">${escapeHtml(gap.fromAbility)}</span></td>
+      <td><span class="time">${formatTime(gap.toTime, currentReport.fightStart)}</span><br><span class="ability">${escapeHtml(gap.toAbility)}</span></td>
       <td class="time">${duration(gap.gcd)}</td>
       <td class="time">${duration(gap.interval)}</td>
-      <td><span class="time">${formatTime(gap.toTime, currentReport.fightStart)}</span><br><span class="ability">${escapeHtml(gap.toAbility)}</span></td>
     </tr>`).join('');
   $('emptyState').hidden = rows.length > 0;
 }
