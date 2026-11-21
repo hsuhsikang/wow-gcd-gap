@@ -57,12 +57,17 @@ function renderRows() {
     return sum + damage * gap.idle / gap.gcd;
   }, 0);
   const averageActionEstimate = totalGcds * (currentReport.averageDamagePerAction || 0);
+  const hasDamageEstimate = Number.isFinite(currentReport.averageDamagePerAction)
+    && currentReport.damagePerAction
+    && Object.keys(currentReport.damagePerAction).length > 0;
   const lowDamage = Math.min(nextSpellEstimate, averageActionEstimate);
   const highDamage = Math.max(nextSpellEstimate, averageActionEstimate);
   const compactDamage = value => `${(value / 1_000_000).toFixed(1)}M`;
-  $('estimatedDamage').textContent = `${compactDamage(lowDamage)}–${compactDamage(highDamage)}`;
+  $('estimatedDamage').textContent = hasDamageEstimate
+    ? `${compactDamage(lowDamage)}–${compactDamage(highDamage)}`
+    : 'Unavailable';
   const fightSeconds = currentReport.fightDuration / 1000;
-  $('estimatedDps').textContent = fightSeconds > 0
+  $('estimatedDps').textContent = hasDamageEstimate && fightSeconds > 0
     ? `≈${(lowDamage / fightSeconds / 1000).toFixed(1)}–${(highDamage / fightSeconds / 1000).toFixed(1)}k DPS`
     : '';
   $('totalSeconds').textContent = duration(totalIdle);
@@ -149,7 +154,7 @@ function seekVideoToGap(row) {
 }
 
 try {
-  const response = await fetch('./data/gcd-report.json');
+  const response = await fetch('./data/gcd-report.json?v=damage-estimate-1', {cache: 'no-store'});
   if (!response.ok) throw new Error('Sample report not found');
   render(await response.json());
 } catch (error) {
