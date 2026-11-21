@@ -37,6 +37,14 @@
           <div><span class="stat-label">DYNAMIC GCD RANGE</span><strong id="gcdRange">—</strong></div>
           <div><span class="stat-label">HASTE RANGE</span><strong id="hasteRange">—</strong></div>
         </div>
+        <section class="video-review" aria-label="Video review">
+          <div class="video-toolbar">
+            <label class="video-picker"><span class="eyebrow">FIGHT VIDEO</span><input id="videoFile" type="file" accept="video/*"></label>
+            <label class="video-offset"><span class="eyebrow">FIGHT START AT VIDEO TIME</span><input id="videoOffset" type="number" min="0" step="0.1" value="0"><b>sec</b></label>
+          </div>
+          <video id="fightVideo" controls preload="metadata" hidden></video>
+          <p class="video-hint" id="videoHint">Choose a local video, then select a gap row to jump to where the uncovered time begins.</p>
+        </section>
         <div class="toolbar">
           <div><h3>Uncovered intervals</h3><p>Sorted by uncovered time · GCD equivalents use the previous action’s GCD</p></div>
           <label class="minimum"><span>MIN. UNCOVERED</span><input id="minimumGap" type="number" min="0" max="60" step="0.01" value="0"><b> sec</b></label>

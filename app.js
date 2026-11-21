@@ -1,6 +1,7 @@
 const DEFAULT_REPORT = 'https://www.warcraftlogs.com/reports/tKGJ2NCQvfxRwMd3?fight=22&type=casts&source=17&view=events';
 const $ = id => document.getElementById(id);
 let currentReport;
+let videoObjectUrl;
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -52,7 +53,7 @@ function renderRows() {
     : '—';
   $('totalSeconds').textContent = duration(totalIdle);
   $('gapRows').innerHTML = rows.map(gap => `
-    <tr>
+    <tr class="gap-row" tabindex="0" role="button" aria-label="Review gap beginning at ${formatTime(gap.coverageEnd, currentReport.fightStart)}" data-video-time="${(gap.coverageEnd - currentReport.fightStart) / 1000}">
       <td class="gap-value">${(gap.idle / gap.gcd).toFixed(2)}</td>
       <td class="time">${duration(gap.idle)}</td>
       <td><span class="time">${formatTime(gap.fromTime, currentReport.fightStart)}</span><br><span class="ability">${escapeHtml(gap.fromAbility)}</span></td>
@@ -87,6 +88,41 @@ $('reportForm').addEventListener('submit', event => {
   analyzeUrl($('reportUrl').value, $('playerName').value.trim());
 });
 $('minimumGap').addEventListener('input', renderRows);
+$('videoFile').addEventListener('change', event => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  if (videoObjectUrl) URL.revokeObjectURL(videoObjectUrl);
+  videoObjectUrl = URL.createObjectURL(file);
+  const video = $('fightVideo');
+  video.src = videoObjectUrl;
+  video.hidden = false;
+  $('videoHint').textContent = `${file.name} · Set the fight-start offset if the video begins before the fight.`;
+});
+$('gapRows').addEventListener('click', event => {
+  const row = event.target.closest('.gap-row');
+  if (row) seekVideoToGap(row);
+});
+$('gapRows').addEventListener('keydown', event => {
+  const row = event.target.closest('.gap-row');
+  if (row && (event.key === 'Enter' || event.key === ' ')) {
+    event.preventDefault();
+    seekVideoToGap(row);
+  }
+});
+
+function seekVideoToGap(row) {
+  const video = $('fightVideo');
+  if (!video.src) {
+    $('videoHint').textContent = 'Choose a local video first, then select a gap row.';
+    $('videoFile').focus();
+    return;
+  }
+  const offset = Math.max(0, Number($('videoOffset').value) || 0);
+  const target = Math.max(0, Number(row.dataset.videoTime) + offset);
+  video.currentTime = Number.isFinite(video.duration) ? Math.min(target, video.duration) : target;
+  video.scrollIntoView({behavior: 'smooth', block: 'center'});
+  video.focus({preventScroll: true});
+}
 
 try {
   const response = await fetch('./data/gcd-report.json');
