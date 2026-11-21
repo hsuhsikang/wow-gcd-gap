@@ -46,6 +46,7 @@ function renderRows() {
   const rows = currentReport.gaps.filter(gap => gap.idle >= minGap);
   const totalIdle = rows.reduce((sum, gap) => sum + gap.idle, 0);
   const totalGcds = rows.reduce((sum, gap) => sum + gap.idle / gap.gcd, 0);
+  $('totalGaps').textContent = rows.length.toLocaleString();
   $('totalGcds').textContent = totalGcds.toFixed(2);
   const totalGcdOpportunities = Number(currentReport.gcdActionCount) + totalGcds;
   $('gcdLossPercent').textContent = totalGcdOpportunities > 0
