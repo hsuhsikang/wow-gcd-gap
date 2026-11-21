@@ -120,9 +120,19 @@ function seekVideoToGap(row) {
   }
   const offset = Math.max(0, Number($('videoOffset').value) || 0);
   const target = Math.max(0, Number(row.dataset.videoTime) + offset);
-  video.currentTime = Number.isFinite(video.duration) ? Math.min(target, video.duration) : target;
+  try {
+    video.currentTime = Number.isFinite(video.duration) ? Math.min(target, video.duration) : target;
+  } catch (error) {
+    $('videoHint').textContent = 'The video is still loading. Select the gap again when it is ready.';
+    return;
+  }
   video.scrollIntoView({behavior: 'smooth', block: 'center'});
   video.focus({preventScroll: true});
+  video.play().then(() => {
+    $('videoHint').textContent = 'Playing from the start of the uncovered interval. Press pause whenever you want to stop.';
+  }).catch(() => {
+    $('videoHint').textContent = 'Playback was blocked by the browser. Press play on the video to continue.';
+  });
 }
 
 try {
