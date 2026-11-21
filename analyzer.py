@@ -202,6 +202,35 @@ def analyze_events(
     haste_events.sort()
 
     actions = _make_actions(events, player_id)
+    action_counts: dict[str, int] = defaultdict(int)
+    for action in actions:
+        action_counts[action["name"]] += 1
+    spell_damage: dict[str, int] = defaultdict(int)
+    total_player_damage = 0
+    for event in events:
+        if event.get("type") == "damage" and event.get("sourceID") == player_id:
+            amount = int(event.get("amount") or 0)
+            spell_damage[_spell(event).get("name") or "Unknown ability"] += amount
+            total_player_damage += amount
+
+    # Exclude DoT damage from the broad average: the full fight's tick total
+    # cannot be credited to one extra cast without modeling refresh timing.
+    dot_spells = {589, 34914}  # Shadow Word: Pain, Vampiric Touch
+    direct_action_names = {
+        action["name"] for action in actions
+        if action["id"] not in dot_spells and spell_damage.get(action["name"], 0) > 0
+    }
+    direct_action_count = sum(action_counts[name] for name in direct_action_names)
+    average_damage_per_action = (
+        sum(spell_damage[name] for name in direct_action_names) / direct_action_count
+        if direct_action_count else 0
+    )
+    damage_per_action = {
+        name: damage / action_counts[name]
+        for name, damage in spell_damage.items()
+        if action_counts.get(name, 0)
+    }
+
     dynamic_haste = haste
     buff_index = 0
     gcd_spans = []
@@ -280,4 +309,7 @@ def analyze_events(
         "gcdRange": [min_gcd if gcd_spans else 0, max_gcd],
         "gapCount": len(gaps),
         "gaps": gaps,
+        "damagePerAction": damage_per_action,
+        "averageDamagePerAction": average_damage_per_action,
+        "totalPlayerDamage": total_player_damage,
     }

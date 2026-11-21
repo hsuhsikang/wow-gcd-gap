@@ -55,6 +55,7 @@
             <div><span class="stat-label">TOTAL GAPS</span><strong id="totalGaps">—</strong></div>
             <div><span class="stat-label">TOTAL GCD EQUIVALENTS</span><strong id="totalGcds">—</strong></div>
             <div><span class="stat-label">GCD LOSS</span><strong id="gcdLossPercent">—</strong></div>
+            <div><span class="stat-label">ESTIMATED DAMAGE LOST</span><strong id="estimatedDamage">—</strong><small id="estimatedDps"></small></div>
             <div><span class="stat-label">TOTAL UNCOVERED TIME</span><strong id="totalSeconds">—</strong></div>
           </div>
           <table>
@@ -63,7 +64,7 @@
           </table>
           <div class="empty" id="emptyState" hidden>No gaps meet this minimum.</div>
         </div>
-        <div class="footnote"><span class="dot"></span><p><strong>Method:</strong> Each row’s GCD equivalent is uncovered seconds divided by the previous GCD duration. GCD loss is uncovered GCD equivalents divided by performed on-GCD actions plus uncovered GCD equivalents. Totals sum the rows currently shown. GCD duration is calculated at each on-GCD cast using the haste state at that timestamp; casts and channels cover their active duration. <b>Shadowy Apparition is excluded</b>; Void Volley is included as an active GCD ability per your rule.</p></div>
+        <div class="footnote"><span class="dot"></span><p><strong>Method:</strong> Each row’s GCD equivalent is uncovered seconds divided by the previous GCD duration. GCD loss is uncovered GCD equivalents divided by performed on-GCD actions plus uncovered GCD equivalents. Estimated damage lost is a rough range from observed next-spell damage per cast and average damage per direct on-GCD action; it assumes extra casts could be fit into the shown gaps. Totals follow the current filter. GCD duration is calculated at each on-GCD cast using the haste state at that timestamp; casts and channels cover their active duration. <b>Shadowy Apparition is excluded</b>; Void Volley is included as an active GCD ability per your rule.</p></div>
       </div>
     </section>
     <footer>CAST GAP REVIEW <span>·</span> GCD-AWARE PROTOTYPE</footer>

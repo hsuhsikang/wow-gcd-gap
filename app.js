@@ -52,6 +52,19 @@ function renderRows() {
   $('gcdLossPercent').textContent = totalGcdOpportunities > 0
     ? `${(totalGcds / totalGcdOpportunities * 100).toFixed(1)}%`
     : '—';
+  const nextSpellEstimate = rows.reduce((sum, gap) => {
+    const damage = currentReport.damagePerAction?.[gap.toAbility] || 0;
+    return sum + damage * gap.idle / gap.gcd;
+  }, 0);
+  const averageActionEstimate = totalGcds * (currentReport.averageDamagePerAction || 0);
+  const lowDamage = Math.min(nextSpellEstimate, averageActionEstimate);
+  const highDamage = Math.max(nextSpellEstimate, averageActionEstimate);
+  const compactDamage = value => `${(value / 1_000_000).toFixed(1)}M`;
+  $('estimatedDamage').textContent = `${compactDamage(lowDamage)}–${compactDamage(highDamage)}`;
+  const fightSeconds = currentReport.fightDuration / 1000;
+  $('estimatedDps').textContent = fightSeconds > 0
+    ? `≈${(lowDamage / fightSeconds / 1000).toFixed(1)}–${(highDamage / fightSeconds / 1000).toFixed(1)}k DPS`
+    : '';
   $('totalSeconds').textContent = duration(totalIdle);
   $('gapRows').innerHTML = rows.map(gap => `
     <tr class="gap-row" tabindex="0" role="button" aria-label="Review gap beginning at ${formatTime(gap.coverageEnd, currentReport.fightStart)}" data-video-time="${(gap.coverageEnd - currentReport.fightStart) / 1000}">

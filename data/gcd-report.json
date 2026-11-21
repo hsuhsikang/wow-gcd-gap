@@ -849,6 +849,20 @@
       "haste": 0.39332954545454535
     }
   ],
+  "damagePerAction": {
+    "Mind Blast": 188630.5945945946,
+    "Tentacle Slam": 24448.89285714286,
+    "Shadow Word: Pain": 869059.875,
+    "Shadow Word: Madness": 250228.03846153847,
+    "Vampiric Touch": 8499953.0,
+    "Void Volley": 230232.08333333334,
+    "Halo": 708646.6666666666,
+    "Mind Flay: Insanity": 227353.57142857142,
+    "Mind Flay": 103973.35555555555,
+    "Shadow Word: Death": 130941.0
+  },
+  "averageDamagePerAction": 187869.8577586207,
+  "totalPlayerDamage": 103719102,
   "encounter": "The Lost Explorers",
   "difficulty": 5,
   "kill": true,
